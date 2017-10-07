@@ -18,6 +18,8 @@ import ContentAdd from 'material-ui/svg-icons/content/add';
 import MapComponent from "./mapComponent"
 import TabComponent from "./tabComponent"
 
+import globalThemes from '../style/globalThemes.js'
+import globalFonts from '../style/globalFonts.js'
 
 
 config()
@@ -131,11 +133,10 @@ class AdminParent extends Component {
         position: "absolute",
         transition: "all .2s ease-in-out",
         height: "50px",
-        backgroundColor: "white",
-        borderTop: "1px solid #CCCCCC",
+        backgroundColor: globalThemes.blueGrey500,
         width: "100vw",
         top: "calc(100vh - 51px)",
-        zIndex: '3'
+        zIndex: '3',
       }
     }
     else{
@@ -144,7 +145,7 @@ class AdminParent extends Component {
         position: "absolute",
         transition: "all .2s ease-in-out",
         height: "100vh",
-        backgroundColor: "white",
+        backgroundColor: globalThemes.blueGrey500,
         width: "100vw",
         top: "0px",
         zIndex: '3'
@@ -167,11 +168,12 @@ class AdminParent extends Component {
         bottom: '40px', 
         right: '45vw',
         zIndex: '2',
+        color: 'green'
       }
       adTextStyle = {
         position: 'absolute',
         bottom: '51px', 
-        right: 'calc(45vw + 9px)',
+        right: 'calc(45vw + 14px)',
         zIndex: '4',
         pointerEvents: "none", 
         fontSize: "11px",
@@ -212,12 +214,13 @@ class AdminParent extends Component {
         bottom: '70px', 
         right: '20px',
         zIndex: '2',
+        backgroundColor: 'green'
       }
       adTextStyle = {
         position: 'absolute',
         bottom: '81px', 
-        right: '29px',
-        zIndex: '4',
+        right: '34px',
+        zIndex: '2',
         pointerEvents: "none", 
         fontSize: "11px",
         color: "white"
@@ -252,7 +255,7 @@ class AdminParent extends Component {
       }
     }
     return (
-      <div style={{position: "relative", width: "100vw", height: "100vh", overflow: "hidden"}}>
+      <div style={{position: "relative", width: "100vw", height: "100vh", overflow: "hidden", backgroundColor: globalThemes.blueGrey500, fontFamily: globalFonts.Abel}}>
         <ReactResizeDetector handleWidth handleHeight onResize={this._onResize} />
         {this.state.screenWidth > 700 &&
           <div style={{float: "left", width: "60%", position: "fixed", height: "100vh"}}>
@@ -298,7 +301,7 @@ class AdminParent extends Component {
              />
           </div>
         }
-        <FloatingActionButton onClick={this.jobAdAddClick} style={adButtonStyle}>
+        <FloatingActionButton onClick={this.jobAdAddClick} backgroundColor={globalThemes.blueGrey500} style={adButtonStyle}>
           <div>
             <ContentAdd style={{color: "white"}}></ContentAdd>
           </div>

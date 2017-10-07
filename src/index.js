@@ -10,12 +10,13 @@ import reducers from './reducers';
 import injectTapEventPlugin from 'react-tap-event-plugin'
 import reduxThunk from 'redux-thunk';
 import CreateCampaignParent from "./adminApp/createCampaignApp/createCampaignParent"
-
-
 import AdminParent from "./adminApp/adminParent"
 
+import getMuiTheme from 'material-ui/styles/getMuiTheme';
+import WebFont from 'webfontloader';
 
-
+import globalFonts from './style/globalFonts.js'
+import globalThemes from './style/globalThemes.js'
 
 
 injectTapEventPlugin();
@@ -25,22 +26,31 @@ const store = createStore(reducers, composeEnhancers(
     applyMiddleware(reduxThunk, promise)
   ));
 
-class Dupa extends React.Component{
-  render(){
-    return(
-      <div>HELLOOOOOO</div>
-    )
+
+const muiTheme = getMuiTheme({
+  tabs: {
+    backgroundColor: globalThemes.blueGrey500,
   }
-}
+});
+
+
+
+
+WebFont.load({
+  google: {
+    families: ['Titillium Web:300,400,700', 'sans-serif', 'Abel']
+  }
+});
+
+
 
 ReactDOM.render(
   <Provider store={store}>
-    <MuiThemeProvider>
+    <MuiThemeProvider muiTheme={muiTheme}>
       <BrowserRouter>
         <div>
           <Switch>
             <Route exact path="/" component={AdminParent} />
-            <Route path='/hue' component={Dupa} />
             <Route path="/create-campaign" component={CreateCampaignParent} />
           </Switch>
         </div>

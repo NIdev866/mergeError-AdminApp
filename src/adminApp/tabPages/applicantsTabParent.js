@@ -5,18 +5,21 @@ import { fetchAllCampaigns, fetchAllJobseekersByCampaignId,
   clearAllJobseekersState} from '../../actions'
 import { connect } from "react-redux"
 import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
-
-
 import Checkbox from 'material-ui/Checkbox';
 import ActionFavorite from 'material-ui/svg-icons/action/favorite';
 import ActionFavoriteBorder from 'material-ui/svg-icons/action/favorite-border';
-import axios from 'axios';
+import globalThemes from '../../style/globalThemes.js'
+import globalFonts from '../../style/globalFonts.js'
+import {red500, yellow500, blue500} from 'material-ui/styles/colors';
 
 
-
-
+const google = window.google
 
 class ApplicantsTabParent extends Component {
+  constructor(props){
+    super(props)
+    this.createDistance = this.createDistance.bind(this)
+  }
   componentWillMount(){
     if(!this.props.allCampaigns){
       this.props.fetchAllCampaigns()
@@ -39,17 +42,40 @@ class ApplicantsTabParent extends Component {
       this.props.nestJobseekersIntoCampaigns()}}}, 10)
     }
   }
-
-
-
-
-
-
-
-
   afterClickFetchAllJobseekersByCampaignId(){
     this.props.clearAllJobseekersState()
   }
+
+
+
+
+  createDistance(campaignLat, campaignLng, campaignIndex, jobseekerLat, jobseekerLng, jobseekerIndex){
+    console.log('INNNN')
+    let resultDistance
+    let DistanceService = new google.maps.DistanceMatrixService();
+    DistanceService.getDistanceMatrix({
+        origins: [{lat: jobseekerLat, lng: jobseekerLng}],
+        destinations: [{lat: campaignLat, lng: campaignLng}],
+        travelMode: 'DRIVING',
+        avoidHighways: false,
+        avoidTolls: false,
+      }, (result, status) => { 
+        if(result && result.rows[0].elements[0].duration){
+          resultDistance = result.rows[0].elements[0].duration.text
+          if(this.state[`distance${campaignIndex},${jobseekerIndex}`] !== resultDistance)
+          this.setState({    // prevState?
+            [`distance${campaignIndex},${jobseekerIndex}`]: resultDistance
+          })
+        }
+    })
+  }
+
+
+
+
+
+
+
 
 
 
@@ -59,52 +85,69 @@ class ApplicantsTabParent extends Component {
     console.log('rerendered')
     const cardStyle = {
       marginTop: "20px",
+      backgroundColor: globalThemes.blueGrey400
     }
     this.localFetchAllJobseekersByCampaignId()
     //if(!this.props.campaignsWithNestedJobseekers){
       this.localNestJobseekersIntoCampaigns()
     //}
     return(
-      <div style={{margin: '0 auto'}}>
+      <div style={{margin: '0 auto', backgroundColor: globalThemes.blueGrey500}}>
 
 
 
-        {this.props.campaignsWithNestedJobseekers && this.props.campaignsWithNestedJobseekers.map((campaign)=>{
+        {this.props.campaignsWithNestedJobseekers && this.props.campaignsWithNestedJobseekers.map((campaign, campaignIndex)=>{
 
 
           return(
             <div>
               <Card style={cardStyle}>
                 <CardHeader
-                  style={{height: "110px", textAlign: "left"}}
+                  style={{height: "110px", textAlign: "left", backgroundColor: globalThemes.blueGrey400, color: globalThemes.white}}
                   actAsExpander={true}
                   showExpandableButton={true}
-                  iconStyle={{position: "relative", left: "12px"}}
+                  iconStyle={{position: "relative", left: "12px", color: globalThemes.white}}
                 >
-                  <p style={{fontSize: "18px", margin: "-10px", marginTop: "-30px", padding: "0"}}><b>{campaign.campaign_name}</b></p>
-                  <p style={{fontSize: "15px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{campaign.location}</p>
-                  <p style={{fontSize: "15px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{campaign.job_type}</p>
-                  <p style={{fontSize: "15px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{campaign.salary + " " + campaign.salary_type}</p>
-                  <p style={{fontSize: "15px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{campaign.job_start_date ? `Starting on ${campaign.job_start_date}` : "Starting on 13/07/2017"}</p>
+                  <p style={{fontFamily: 'Poiret One', fontSize: "18px", margin: "-10px", marginTop: "-30px", padding: "0"}}><b>{campaign.campaign_name}</b></p>
+                  <p style={{fontFamily: 'Mukta', fontSize: "15px", margin: "-15px", marginLeft: '0px', marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{campaign.location}</p>
+                  <p style={{fontFamily: 'Mukta', fontSize: "15px", margin: "-15px", marginLeft: '0px', marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{campaign.job_type}</p>
+                  <p style={{fontFamily: 'Mukta', fontSize: "15px", margin: "-15px", marginLeft: '0px', marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{campaign.salary + " " + campaign.salary_type}</p>
+                  <p style={{fontFamily: "Mukta", fontSize: "15px", margin: "-15px", marginLeft: '0px', marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{campaign.job_start_date ? `Starting on ${campaign.job_start_date}` : "Starting on 13/07/2017"}</p>
                 </CardHeader>
 
-                <CardText expandable={true} style={{paddingBottom: "1px", paddingTop: "1px"}}>
+                <CardText expandable={true} style={{color: 'white', paddingBottom: "1px", paddingTop: "1px", backgroundColor: globalThemes.blueGrey400}}>
 
-                  {campaign.jobseekers[0].map((jobseeker)=>{
+                  {campaign.jobseekers[0].map((jobseeker, jobseekerIndex)=>{
+
+                    this.createDistance(
+                      parseFloat(campaign.lat), 
+                      parseFloat(campaign.lng), 
+                      campaignIndex,
+                      parseFloat(jobseeker.lat),
+                      parseFloat(jobseeker.lng),
+                      jobseekerIndex
+                    )
 
                     return (
-                      <Card style={{marginBottom: '10px', position: 'relative'}}>
+                      <Card style={{marginBottom: '10px', position: 'relative', backgroundColor: globalThemes.blueGrey300}}>
                         <CardHeader
-                          style={{height: "90px", textAlign: "left"}}
+                          style={{color: 'white', height: "90px", textAlign: "left", backgroundColor: globalThemes.blueGrey300}}
                           actAsExpander={true}
                           showExpandableButton={true}
-                          iconStyle={{position: "relative", left: "12px"}}
+                          iconStyle={{position: "relative", left: "12px", color: 'white'}}
                         >
-                          <p style={{fontSize: "16px", margin: "-10px", marginTop: "-30px", padding: "0"}}><b>{jobseeker.first_name + ' ' + jobseeker.last_name}</b></p>
-                          <p style={{fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{jobseeker.postal_code}</p>
-                          <p style={{fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{'Age range ' + jobseeker.age}</p>
-                          <p style={{fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{jobseeker.email_id}</p>
-                          <p style={{fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "grey"}}>{jobseeker.contact_no}</p>
+                          <p style={{fontFamily: 'Poiret One', fontSize: "16px", margin: "-10px", marginTop: "-30px", padding: "0"}}><b>{jobseeker.first_name + ' ' + jobseeker.last_name}</b></p>
+                          <p style={{fontFamily: globalFonts.Abel, fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{'Age range ' + jobseeker.age}</p>
+
+<p style={{fontSize: "15px", margin: "-10px",
+ marginTop: "26px", padding: "0", 
+
+ color: "grey"}}>Distance: {/*this.state[`distance${campaignIndex},${jobseekerIndex}`] + " away"*/}</p>
+
+
+
+                          <p style={{fontFamily: globalFonts.Abel, fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{jobseeker.email_id}</p>
+                          <p style={{fontFamily: globalFonts.Abel, fontSize: "13px", margin: "-10px", marginTop: "10px", padding: "0", color: "#DEDEDE"}}>{jobseeker.contact_no}</p>
                         </CardHeader>
 
                         {jobseeker.job_status == 'applied' ? 
@@ -112,10 +155,11 @@ class ApplicantsTabParent extends Component {
                         {console.log(jobseeker.job_status)}
                         <Checkbox
                           disableTouchRipple
-                          checkedIcon={<ActionFavorite />}
-                          uncheckedIcon={<ActionFavoriteBorder />}
+                          checkedIcon={<ActionFavorite color='red' />}
+                          uncheckedIcon={<ActionFavoriteBorder color='red' />}
 
                           onCheck={() => {
+                            jobseeker.job_status = 'selected'
                             this.afterClickFetchAllJobseekersByCampaignId()
                             this.props.updateJobseekerJobStatus(jobseeker)
                           }}
@@ -125,12 +169,10 @@ class ApplicantsTabParent extends Component {
                         </div>
                         :
                         <div>
-                        {console.log('HUU ' + jobseeker.job_status)}
                         <Checkbox
                           disableTouchRipple
-                          checkedIcon={<ActionFavorite />}
-                          uncheckedIcon={<ActionFavoriteBorder />}
-
+                          checkedIcon={<ActionFavorite/>}
+                          uncheckedIcon={<ActionFavoriteBorder color={yellow500}/>}
                           checked={true}
 
                           style={{position: 'absolute', top:'0px', left: 'calc(100% - 40px)', float: 'right'}}
